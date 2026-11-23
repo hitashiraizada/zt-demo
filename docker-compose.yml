@@ -3,11 +3,29 @@ services:
     build: ./payments
     # no "ports:" -> not reachable from the host
 
+  payments-proxy:
+    image: nginx:1.27.3-alpine
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs/ca.pem:/etc/nginx/certs/ca.pem:ro
+      - ./certs/payments-proxy.pem:/etc/nginx/certs/payments-proxy.pem:ro
+      - ./certs/payments-proxy.key:/etc/nginx/certs/payments-proxy.key:ro
+    depends_on:
+      - payments
+
   orders:
     build: ./orders
     environment:
-      PAYMENTS_URL: http://payments:8000
+      PAYMENTS_URL: https://payments-proxy:8443
+      CA_CERT: /certs/ca.pem
+      CLIENT_CERT: /certs/orders.pem
+      CLIENT_KEY: /certs/orders.key
+    volumes:
+      # orders gets only its own key pair and the CA, nothing else
+      - ./certs/ca.pem:/certs/ca.pem:ro
+      - ./certs/orders.pem:/certs/orders.pem:ro
+      - ./certs/orders.key:/certs/orders.key:ro
     ports:
       - "8001:8000"
     depends_on:
-      - payments
+      - payments-proxy

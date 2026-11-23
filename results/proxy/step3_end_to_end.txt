@@ -1,0 +1,29 @@
+$ curl -sS -i -X POST localhost:8001/order
+HTTP/1.1 200 OK
+date: Sun, 22 Nov 2026 16:51:43 GMT
+server: uvicorn
+content-length: 31
+content-type: application/json
+
+{"status":"paid","amount":42.0}
+
+$ docker compose exec payments-proxy nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+$ docker compose ps
+NAME                       IMAGE                                                                     COMMAND                  SERVICE          CREATED         STATUS         PORTS
+zt-demo-orders-1           zt-demo-orders                                                            "uvicorn app:app --h…"   orders           8 seconds ago   Up 7 seconds   0.0.0.0:8001->8000/tcp
+zt-demo-payments-1         sha256:ca39faac0b6e0729183f1f2e451c52a8f5a9c7383330217dde6f4c120c36c5ac   "uvicorn app:app --h…"   payments         5 minutes ago   Up 5 minutes   
+zt-demo-payments-proxy-1   nginx:1.27.3-alpine                                                       "/docker-entrypoint.…"   payments-proxy   8 seconds ago   Up 7 seconds   80/tcp
+
+$ docker compose logs payments-proxy | grep verify=
+payments-proxy-1  | 172.18.0.4 "POST /pay HTTP/1.1" 200 verify=SUCCESS dn="CN=orders"
+
+$ docker compose logs --tail 2 payments
+payments-1  | INFO:     172.18.0.3:46332 - "POST /pay HTTP/1.1" 200 OK
+payments-1  | INFO:     172.18.0.3:48450 - "POST /pay HTTP/1.1" 200 OK
+zt-demo-payments-1 172.18.0.2/16
+zt-demo-orders-1 172.18.0.4/16
+zt-demo-payments-proxy-1 172.18.0.3/16
+
