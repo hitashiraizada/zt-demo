@@ -1,0 +1,63 @@
+$ openssl verify -CAfile ca.pem payments-proxy.pem
+payments-proxy.pem: OK
+
+$ openssl verify -CAfile ca.pem orders.pem
+orders.pem: OK
+
+$ openssl verify -CAfile ca.pem attacker.pem
+attacker.pem: OK
+
+$ openssl verify -CAfile ca.pem rogue.pem
+CN = orders
+error 20 at 0 depth lookup: unable to get local issuer certificate
+error rogue.pem: verification failed
+
+$ openssl verify -CAfile rogue-ca.pem rogue.pem
+rogue.pem: OK
+
+$ openssl x509 -in ca.pem -noout -subject -issuer -ext subjectAltName,extendedKeyUsage,basicConstraints
+subject=CN = zt-demo CA
+issuer=CN = zt-demo CA
+X509v3 Basic Constraints: critical
+    CA:TRUE
+
+$ openssl x509 -in payments-proxy.pem -noout -subject -issuer -ext subjectAltName,extendedKeyUsage,basicConstraints
+subject=CN = payments-proxy
+issuer=CN = zt-demo CA
+X509v3 Basic Constraints: 
+    CA:FALSE
+X509v3 Extended Key Usage: 
+    TLS Web Server Authentication
+X509v3 Subject Alternative Name: 
+    DNS:payments-proxy
+
+$ openssl x509 -in orders.pem -noout -subject -issuer -ext subjectAltName,extendedKeyUsage,basicConstraints
+subject=CN = orders
+issuer=CN = zt-demo CA
+X509v3 Basic Constraints: 
+    CA:FALSE
+X509v3 Extended Key Usage: 
+    TLS Web Client Authentication
+
+$ openssl x509 -in attacker.pem -noout -subject -issuer -ext subjectAltName,extendedKeyUsage,basicConstraints
+subject=CN = attacker
+issuer=CN = zt-demo CA
+X509v3 Basic Constraints: 
+    CA:FALSE
+X509v3 Extended Key Usage: 
+    TLS Web Client Authentication
+
+$ openssl x509 -in rogue-ca.pem -noout -subject -issuer -ext subjectAltName,extendedKeyUsage,basicConstraints
+subject=CN = rogue CA
+issuer=CN = rogue CA
+X509v3 Basic Constraints: critical
+    CA:TRUE
+
+$ openssl x509 -in rogue.pem -noout -subject -issuer -ext subjectAltName,extendedKeyUsage,basicConstraints
+subject=CN = orders
+issuer=CN = rogue CA
+X509v3 Basic Constraints: 
+    CA:FALSE
+X509v3 Extended Key Usage: 
+    TLS Web Client Authentication
+
