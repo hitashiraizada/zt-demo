@@ -29,3 +29,7 @@ services:
       - "8001:8000"
     depends_on:
       - payments-proxy
+
+networks:
+  default:
+    name: zt-net   # fixed name so scripts can attach throwaway containers to it
