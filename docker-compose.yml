@@ -30,6 +30,18 @@ services:
     depends_on:
       - payments-proxy
 
+  bench:
+    build: ./bench
+    profiles: ["bench"]   # only started by: docker compose run --rm bench
+    volumes:
+      - ./certs/ca.pem:/certs/ca.pem:ro
+      - ./certs/orders.pem:/certs/orders.pem:ro
+      - ./certs/orders.key:/certs/orders.key:ro
+      - ./results/bench:/results
+    depends_on:
+      - payments
+      - payments-proxy
+
 networks:
   default:
     name: zt-net   # fixed name so scripts can attach throwaway containers to it

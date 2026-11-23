@@ -1,0 +1,6 @@
+FROM python:3.12-slim
+WORKDIR /bench
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY bench.py plot.py ./
+CMD ["sh", "-c", "python bench.py && python plot.py"]

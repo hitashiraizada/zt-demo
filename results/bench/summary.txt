@@ -1,0 +1,7 @@
+seed=0 runs=5 warmup=50 measured_per_run=1000
+path                         n  median_ms   p95_ms  mean_ms   std_ms
+direct_plain              5000      0.633    0.987    0.682    0.178
+nginx_plain_new           5000      1.271    1.631    1.304    0.236
+nginx_plain_keepalive     5000      0.878    1.211    0.913    0.217
+nginx_mtls_new            5000      3.458    4.493    3.591    0.558
+nginx_mtls_keepalive      5000      0.908    1.296    0.955    0.330
