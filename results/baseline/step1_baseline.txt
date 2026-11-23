@@ -1,0 +1,24 @@
+$ curl -sS -i -X POST localhost:8001/order
+HTTP/1.1 200 OK
+date: Sun, 22 Nov 2026 16:46:42 GMT
+server: uvicorn
+content-length: 31
+content-type: application/json
+
+{"status":"paid","amount":42.0}
+
+$ curl -sS -m 3 -X POST localhost:8000/pay   # payments is NOT published to the host
+curl: (7) Failed to connect to localhost port 8000 after 0 ms: Couldn't connect to server
+exit code: 7
+
+$ docker compose ps
+NAME                 IMAGE              COMMAND                  SERVICE    CREATED         STATUS         PORTS
+zt-demo-orders-1     zt-demo-orders     "uvicorn app:app --h…"   orders     8 seconds ago   Up 7 seconds   0.0.0.0:8001->8000/tcp
+zt-demo-payments-1   zt-demo-payments   "uvicorn app:app --h…"   payments   8 seconds ago   Up 7 seconds   
+
+$ docker compose logs payments
+payments-1  | INFO:     Started server process [1]
+payments-1  | INFO:     Waiting for application startup.
+payments-1  | INFO:     Application startup complete.
+payments-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+payments-1  | INFO:     172.18.0.3:46332 - "POST /pay HTTP/1.1" 200 OK

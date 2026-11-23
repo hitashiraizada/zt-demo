@@ -1,0 +1,13 @@
+services:
+  payments:
+    build: ./payments
+    # no "ports:" -> not reachable from the host
+
+  orders:
+    build: ./orders
+    environment:
+      PAYMENTS_URL: http://payments:8000
+    ports:
+      - "8001:8000"
+    depends_on:
+      - payments
