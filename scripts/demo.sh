@@ -14,7 +14,7 @@ PROXY=https://payments-proxy:8443/pay
 run_case() {
   local name=$1; shift
   # -u 0: the private keys are mode 600 (root only); the curl image runs as non-root.
-  local cmd=(docker run --rm -u 0 --network zt-net -v "$PWD/certs:/certs:ro"
+  local cmd=(docker run --rm -u 0 --network zt-net -v "$(pwd -W)/certs:/certs:ro"
              "$CURL_IMAGE" -sS -v -w '\nHTTP_CODE=%{http_code}\n' "$@")
   {
     echo "# $(date -u +%Y-%m-%dT%H:%M:%SZ)"
