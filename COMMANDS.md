@@ -3,6 +3,10 @@
 Every command used to produce the files in `results/`, in order, starting from a
 clean clone. Run them from the repository root.
 
+`docker compose up -d` returns before the apps inside the containers are ready,
+so each `up` is followed by a loop that waits until `/order` answers (this adds one
+request to the logs).
+
 Requirements: Docker with Compose v2, `git`, `bash`, `openssl`, `curl`.
 Host ports used: 8001.
 
@@ -20,6 +24,7 @@ The baseline only exists in the Step 1 commit, so check that commit out first.
 ```bash
 git checkout $(git log --format=%h --grep='^Step 1:')
 docker compose up -d --build
+until curl -sf -o /dev/null -X POST localhost:8001/order; do sleep 1; done   # wait until the services answer
 ```
 
 Produces `results/baseline/step1_baseline.txt`:
@@ -61,6 +66,7 @@ for c in ca payments-proxy orders attacker rogue-ca rogue; do echo "\$ openssl x
 
 ```bash
 docker compose up -d --build
+until curl -sf -o /dev/null -X POST localhost:8001/order; do sleep 1; done   # wait until the services answer
 ```
 
 Produces `results/proxy/step3_end_to_end.txt`:
